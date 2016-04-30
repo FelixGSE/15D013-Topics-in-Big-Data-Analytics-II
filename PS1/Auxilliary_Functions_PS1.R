@@ -42,15 +42,14 @@ lagged.data.set <- function( nlag, data ){
   colnames    <- colnames( data )
   # Run lagged columns according to arguments
   for ( lag in 1:nlag ){
-    # get the lagged values
-    lagged.cols <- data[ 1:(nrow(data) - lag ),colnames]
-    
-    # remove top row from lagged data
+    # Compute lagged values and append to data frame
+    lagged.cols  <- data[ 1:(nrow(data) - lag ),colnames]
     all.colnames <- colnames(lagged.data)
-    lagged.data <- lagged.data[2:nrow(lagged.data),]
-    lagged.data <- cbind(lagged.data, lagged.cols)
+    lagged.data  <- lagged.data[2:nrow(lagged.data),]
+    lagged.data  <- cbind(lagged.data, lagged.cols)
+    # Update column names
     colnames(lagged.data) <- append(all.colnames, sapply(colnames, paste0, paste0('.lag',lag)))
   }
-  # remove contemporaneous features from data
+  # Return data frame
   return(lagged.data)
 }
