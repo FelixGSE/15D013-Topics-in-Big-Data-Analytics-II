@@ -12,7 +12,7 @@ log.returns <- function( series, abs = FALSE ){
     # Compute ahead and lagged values
     future <- series[ 2:N, ]
     past   <- series[ 1:( N - 1), ]  
-  } else{
+  } else {
     # Compute length of series in case of class numeric
     N      <- length( series )
     # Compute ahead and lagged values
@@ -53,3 +53,39 @@ lagged.data.set <- function( nlag, data ){
   # Return data frame
   return(lagged.data)
 }
+
+
+# ------------------------------------------------------------------------------
+# Check if a series is monotonically decreasing
+# ------------------------------------------------------------------------------
+
+monotonically.decreasing <- function( series ){
+  bool <- all(series == cummin(series))
+  return(bool)
+}
+
+# ------------------------------------------------------------------------------
+# Data split function
+# ------------------------------------------------------------------------------
+
+dataSplit <- function(data,size){
+  # Define dimensions of data split
+  N 	<- nrow(data) 
+  S   <- 1:N
+  M 	<- ceiling( size * N )
+  D 	<- N - M 
+  # Sample the rows according to define dimensions
+  dimTR <- sample(N,M,replace=FALSE)
+  dimTE <- setdiff(S,dimTR)
+  # Define Training set and test set
+  trainingSet <- data[dimTR,]
+  testSet 	<- data[dimTE,]
+  # Define output list and return it
+  output <- list( TrainingSet=trainingSet, TestSet=testSet )
+  # Return output
+  return(output)
+}
+
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
