@@ -75,8 +75,8 @@ dataSplit <- function(data,size){
   M 	<- ceiling( size * N )
   D 	<- N - M 
   # Sample the rows according to define dimensions
-  dimTR <- sample(N,M,replace=FALSE)
-  dimTE <- setdiff(S,dimTR)
+  dimTR <- 1:M
+  dimTE <- (M+1):N
   # Define Training set and test set
   trainingSet <- data[dimTR,]
   testSet 	<- data[dimTE,]

@@ -127,9 +127,9 @@ y.test <- test$SP500
 x.test <- test[,setdiff(colnames(test),c("SP500")) ]
   
 # Support Vector Macines (SVM) - Grid Search over Parameters
-gamma        <- 1:3
+gamma        <- 0.5:4
 N.gamma      <- length( gamma )
-cost         <- 1:3
+cost         <- 1:10
 N.cost       <- length( cost )
 model.list   <- list()
 name.counter <- 1
@@ -157,8 +157,8 @@ for( i in 1:N.gamma ){
   
 if( i == N.gamma ){
   best.ind   <- which(mse == min(mse), arr.ind = TRUE)
-  best.gamma <- best.ind[1]
-  best.cost  <- best.ind[2]
+  best.gamma <- gamma[best.ind[1]]
+  best.cost  <- cost[best.ind[2]]
   cat("\n",
       "------------------------------------","\n", 
       "GRID SEARCH FINISHED","\n",
