@@ -40,7 +40,7 @@ df.series <- as.data.frame( stock.series )
 # Extract closing price of series: GOOGLE 
 google.close   <- df.series$GOOG.Close
 N              <- length( google.close )
-google.returns <- google.close[ 2:N ] / google.close[ 1:( N - 1) ]  
+google.returns <- returns( google.close ) 
 
 # Inspect Taylor effect
 max.iteration  <- 5
@@ -86,7 +86,7 @@ m01 <- auto.arima( sentintement.diff )
 sentiment.squared <- sentiment.index**2
 sentiment.acfP2   <- acf( sentiment.squared )
 sentiment.PacfP2  <- pacf( sentiment.squared )
-Box.test( sentiment.squared )
+Box.test( sentiment.squared,type = "Ljung-Box" )
 
 # Fit ARMA-GARCH model
 m02 <- garchFit( UMCSENT ~ garch(1, 1), data = sentiment.squared, trace = FALSE )
@@ -106,76 +106,10 @@ sp500         <- dat$SP500
 
 # Compute ratio series
 ratio          <- ( real.dividend / real.price )[1:(M-1)]
-ratio.log      <- log.returns( ratio ) 
+ratio.log      <- returns( ratio ) 
 ratio.centered <- as.data.frame( scale( ratio.log , center = TRUE , scale = FALSE ) )
-
-ratio.lagged   <- lagged.data.set( 3 , ratio.centered )
-N.ratio.lagged <- nrow(ratio.lagged)
-
-data <- as.data.frame( cbind( sp500[ (M - N.ratio.lagged+1):M ], ratio.lagged ) )
-colnames(data)[1] <- "SP500"
-
-split      <- dataSplit( data, 0.75 )
-training   <- split$TrainingSet
-test       <- split$TestSet
-N.training <- nrow( training )
-M.training <- ncol(training)
-N.test     <- nrow( test )
-M.training <- ncol(test)
-  
-y.test <- test$SP500
-x.test <- test[,setdiff(colnames(test),c("SP500")) ]
-  
-# Support Vector Macines (SVM) - Grid Search over Parameters
-gamma        <- 0.5:4
-N.gamma      <- length( gamma )
-cost         <- 1:10
-N.cost       <- length( cost )
-model.list   <- list()
-name.counter <- 1
-
-mse <- matrix( NA, nrow = N.gamma, ncol = N.cost )
-rownames(mse) <- gamma
-colnames(mse) <- cost
-
-for( i in 1:N.gamma ){
-  temp.gamma <- gamma[i]
-  for( j in 1:N.cost ){
-    temp.cost <- cost[j]
-    tempsvm <- svm( SP500 ~.,data = training, scale = FALSE,
-                    kernel = "radial", gamma = temp.gamma, cost = temp.cost )
-    temp.prediction <- predict(tempsvm, newdata = x.test )
-    temp.mse <- mean( ( y.test - temp.prediction )**2 )
-    mse[i,j] <- temp.mse
-    model.name   <- paste0( "svmGAM",temp.gamma,"COS",temp.cost )
-    
-    model.list[[name.counter]] <- tempsvm  
-    names( model.list )[name.counter] <- model.name
-    name.counter <- name.counter + 1
-    cat("Itteration: i =", i,"/","j =",j,"\n" )
-  }
-  
-if( i == N.gamma ){
-  best.ind   <- which(mse == min(mse), arr.ind = TRUE)
-  best.gamma <- gamma[best.ind[1]]
-  best.cost  <- cost[best.ind[2]]
-  cat("\n",
-      "------------------------------------","\n", 
-      "GRID SEARCH FINISHED","\n",
-      "------------------------------------","\n", 
-      "Training Observation:", N.training  ,"\n",
-      "Test Observations:", N.test, "\n",
-      "BEST PARAMETER SPECIFICATION:","\n",
-      "GAMMA:",best.gamma,"\n",
-      "COST:", best.cost, "\n",
-      "MSE:", mse[best.ind],"\n",
-      "------------------------------------","\n", 
-      "\n",
-      "------------------------------------","\n"
-      )
-  }
-  
-}
+# Find best SVM Model
+svm.model <- smv.lag.grid.search( ratio.centered, sp500 )
 
 # Neuronal Networks
 
@@ -200,3 +134,5 @@ m01 <- h2o.deeplearning(x = 2:M.training,
 ################################################################################
 
 ################################################################################
+
+
