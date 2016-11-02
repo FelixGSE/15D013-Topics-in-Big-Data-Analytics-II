@@ -1,0 +1,7 @@
+H2ORegressionMetrics: deeplearning
+** Reported on validation data. **
+Description: Metrics reported on temporary (load-balanced) validation frame
+
+MSE:  0.001525455
+R2 :  -0.0969398
+Mean Residual Deviance :  0.001525455

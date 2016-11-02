@@ -1,0 +1,40 @@
+Title:
+ GARCH Modelling 
+
+Call:
+ garchFit(formula = UMCSENT ~ arma(1, 2) + garch(1, 1), data = sentiment.index, 
+    trace = FALSE) 
+
+Mean and Variance Equation:
+ data ~ arma(1, 2) + garch(1, 1)
+<environment: 0x116c156d0>
+ [data = sentiment.index]
+
+Conditional Distribution:
+ norm 
+
+Coefficient(s):
+         mu          ar1          ma1          ma2        omega       alpha1        beta1  
+ 9.5295e-04   5.5250e-01  -6.3146e-01  -9.2143e-02   5.8968e-05   9.2567e-02   8.8507e-01  
+
+Std. Errors:
+ based on Hessian 
+
+Error Analysis:
+         Estimate  Std. Error  t value Pr(>|t|)    
+mu      9.530e-04   6.532e-04    1.459  0.14459    
+ar1     5.525e-01   2.029e-01    2.723  0.00647 ** 
+ma1    -6.315e-01   2.039e-01   -3.097  0.00196 ** 
+ma2    -9.214e-02   6.255e-02   -1.473  0.14075    
+omega   5.897e-05   2.886e-05    2.043  0.04102 *  
+alpha1  9.257e-02   2.319e-02    3.992 6.57e-05 ***
+beta1   8.851e-01   2.468e-02   35.857  < 2e-16 ***
+---
+Signif. codes:  0 *** 0.001 ** 0.01 * 0.05 . 0.1   1
+
+Log Likelihood:
+ 755.2853    normalized:  1.645502 
+
+Description:
+ Fri May 20 20:43:25 2016 by user:  
+

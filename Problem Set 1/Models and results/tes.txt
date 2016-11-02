@@ -1,0 +1,35 @@
+Call:
+ garchFit(formula = series ~ arma(1, 1) + garch(1, 1), data = garch.data, 
+    trace = FALSE) 
+
+Mean and Variance Equation:
+ data ~ arma(1, 1) + garch(1, 1)
+<environment: 0x10d32a238>
+ [data = garch.data]
+
+Conditional Distribution:
+ norm 
+
+Coefficient(s):
+         mu          ar1          ma1        omega       alpha1        beta1  
+ 1.3211e-03  -8.9517e-01   8.8402e-01   4.9042e-06   1.5870e-01   7.8512e-01  
+
+Std. Errors:
+ based on Hessian 
+
+Error Analysis:
+         Estimate  Std. Error  t value Pr(>|t|)    
+mu      1.321e-03   4.019e-04    3.287  0.00101 ** 
+ar1    -8.952e-01   1.356e-01   -6.603 4.02e-11 ***
+ma1     8.840e-01   1.375e-01    6.429 1.28e-10 ***
+omega   4.904e-06   1.092e-06    4.491 7.09e-06 ***
+alpha1  1.587e-01   2.565e-02    6.187 6.13e-10 ***
+beta1   7.851e-01   3.022e-02   25.982  < 2e-16 ***
+---
+
+
+Log Likelihood:
+ 4123.551    normalized:  3.366164 
+
+Description:
+ Thu May 19 18:35:12 2016 by user:  

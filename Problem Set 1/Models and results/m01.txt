@@ -1,0 +1,10 @@
+Series: sentiment.index 
+ARIMA(1,0,2) with zero mean     
+
+Coefficients:
+         ar1      ma1      ma2
+      0.5580  -0.5796  -0.1332
+s.e.  0.1663   0.1669   0.0533
+
+sigma^2 estimated as 0.002439:  log likelihood=729.33
+AIC=-1450.67   AICc=-1450.58   BIC=-1434.15

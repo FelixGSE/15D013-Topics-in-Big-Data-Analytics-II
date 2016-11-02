@@ -20,7 +20,7 @@ returns <- function( series, log = FALSE, abs = FALSE, center = FALSE, scale = F
     past   <- series[ 1:( N - 1) ] 
   }
   # Compute returns
-  returns <- future / past - 1 
+  returns <- (future / past) - 1 
   # Run additional options
   if( log == TRUE ){
     returns <- returns + 1
@@ -41,6 +41,7 @@ returns <- function( series, log = FALSE, abs = FALSE, center = FALSE, scale = F
 
 lagged.data.set <- function( nlag, data ){
   # Initialize dataframe and colnames
+  data <- as.data.frame(data)
   lagged.data <- data
   colnames    <- colnames( data )
   # Run lagged columns according to arguments
@@ -58,14 +59,6 @@ lagged.data.set <- function( nlag, data ){
 }
 
 
-# ------------------------------------------------------------------------------
-# Check if a series is monotonically decreasing
-# ------------------------------------------------------------------------------
-
-monotonically.decreasing <- function( series ){
-  bool <- all(series == cummin(series))
-  return(bool)
-}
 
 # ------------------------------------------------------------------------------
 # Data split function
@@ -93,9 +86,10 @@ dataSplit <- function(data,size){
 
 # ------------------------------------------------------------------------------
 
-smv.lag.grid.search <- function( predictor, response, response.name = "SP500" ,lag.array = 1:10, 
-                                      gamma.array =  0.5:4, cost.array =  1:10, data.split = 0.75, 
-                                      inner.trace = FALSE, outer.trace = TRUE, final.trace = TRUE ) {
+smv.lag.grid.search <- function( predictor, response, response.name = "SP500" ,lag.array = 1:10,
+                                 include.self = TRUE,   
+                                 gamma.array =  0.5:4, cost.array =  1:10, data.split = 0.99, 
+                                 inner.trace = FALSE, outer.trace = TRUE, final.trace = TRUE ) {
   
   # Init storage objects
   global.mse.svm <- c()
@@ -108,21 +102,35 @@ smv.lag.grid.search <- function( predictor, response, response.name = "SP500" ,l
     
     ratio.lagged   <- lagged.data.set( h , predictor )
     N.ratio.lagged <- nrow(ratio.lagged)
+    M <- length(response)
+    index <-  (M - N.ratio.lagged + 1):M
     
-    data <- as.data.frame( cbind( response[ (M - N.ratio.lagged+1):M ], ratio.lagged ) )
+    data <- as.data.frame( cbind( response[ index ], ratio.lagged ) )
+    
     colnames(data)[1] <- response.name
-    
+    #if(include.self == TRUE){
+    #  self <- as.data.frame(response)
+    #  self.lagged <- lagged.data.set(h, self )
+    #  N.self <- nrow(self.lagged)
+    #  M.self <- ncol(self.lagged)
+    #  self.lagged.adjusted <- as.data.frame(2:self.lagged[2:N.self,2:M.self])
+    #  colnames(self.lagged.adjusted) <- sapply(1:(M.self-1),function(i){
+    #    paste0("self",i)
+    #  })
+     # data <- cbind(data,self.lagged.adjusted)
+    #}
+
     split      <- dataSplit( data, data.split )
     training   <- split$TrainingSet
     test       <- split$TestSet
     N.training <- nrow( training )
-    M.training <- ncol(training)
+    M.training <- ncol( training )
     N.test     <- nrow( test )
     M.training <- ncol(test)
     
     y.test <- test$SP500
-    x.test <- test[,setdiff(colnames(test),c("SP500")) ]
-    
+    x.test <- test[,setdiff(colnames(test),c(response.name)) ]
+
     # Support Vector Macines (SVM) - Grid Search over Parameters
     
     N.gamma      <- length( gamma )
@@ -139,8 +147,9 @@ smv.lag.grid.search <- function( predictor, response, response.name = "SP500" ,l
       for( j in 1:N.cost ){
         temp.cost <- cost[j]
         tempsvm <- svm( SP500 ~.,data = training, scale = FALSE,
-                        kernel = "radial", gamma = temp.gamma, cost = temp.cost )
-        temp.prediction <- predict(tempsvm, newdata = x.test )
+                        kernel = "radial", gamma = temp.gamma, cost = temp.cost,
+                        cross = 0)
+        temp.prediction <- predict(tempsvm, newx = x.test )
         temp.mse <- mean( ( y.test - temp.prediction )**2 )
         mse[i,j] <- temp.mse
         model.name   <- paste0( "svmGAM",temp.gamma,"COS",temp.cost )
